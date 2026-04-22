@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JoshTV+ — Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<!-- ═══════════════ JOIN SCREEN ═══════════════ -->
+<div id="join-screen" class="join-screen">
+  <div class="join-card">
+    <h2>Join Watch Party</h2>
+    <div id="join-room-code" class="room-code">——————</div>
+    <p>Enter your display name to join</p>
+    <input
+      type="text"
+      id="join-name-input"
+      placeholder="Your name"
+      maxlength="30"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+    />
+    <div id="join-status" class="status-msg" style="margin-bottom:12px;"></div>
+    <button id="join-submit" class="btn-primary" type="button">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+        <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd"/>
+      </svg>
+      Join Room
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ ROOM PAGE ═══════════════ -->
+<div id="room-page" class="room-page hidden">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <span class="topbar-logo">JoshTV+</span>
+    <div class="topbar-divider"></div>
+    <span class="topbar-room-id" id="topbar-room-id">——————</span>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="btn-copy-link" title="Copy invite link">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z"/>
+          <path d="M11.603 7.963a.75.75 0 00-.977 1.138 2.5 2.5 0 01.142 3.667l-3 3a2.5 2.5 0 01-3.536-3.536l1.225-1.224a.75.75 0 00-1.061-1.06l-1.224 1.224a4 4 0 005.656 5.656l3-3a4 4 0 00-.225-5.865z"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="btn-participants" title="Participants">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path d="M7 8a3 3 0 100-6 3 3 0 000 6zM14.5 9a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM1.615 16.428a1.224 1.224 0 01-.569-1.175 6.002 6.002 0 0111.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 017 17a9.953 9.953 0 01-5.385-1.572zM14.5 16h-.106c.07-.297.088-.611.048-.933a7.47 7.47 0 00-1.588-3.755 4.502 4.502 0 015.874 2.575c.092.434-.189.840-.592 1.040A9.96 9.96 0 0114.5 16z"/>
+        </svg>
+      </button>
+      <span class="participant-count" id="participant-count">1</span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <div class="room-main">
+
+    <!-- Video Panel -->
+    <section class="video-panel">
+      <div class="video-container" id="video-container">
+        <video id="video" preload="auto" playsinline></video>
+
+        <!-- Download progress overlay (shown while server fetches from Drive) -->
+        <div class="fetch-overlay" id="fetch-overlay">
+          <div class="fetch-card">
+            <div class="fetch-spinner"></div>
+            <p class="fetch-label" id="fetch-label">Fetching video from Google Drive…</p>
+            <div class="fetch-bar-track">
+              <div class="fetch-bar-fill" id="fetch-bar-fill"></div>
+            </div>
+            <p class="fetch-pct" id="fetch-pct">0%</p>
+          </div>
+        </div>
+
+        <!-- Buffering overlay -->
+        <div class="buffering-overlay hidden" id="buffering-overlay">
+          <div class="buffering-spinner"></div>
+        </div>
+
+        <!-- Video error -->
+        <div class="video-error hidden" id="video-error">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48" style="color:#f87171">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p id="video-error-msg">Unable to load video. Google Drive may be throttling the file. Try again in a moment.</p>
+        </div>
+
+        <!-- Guest readonly badge -->
+        <div class="guest-badge hidden" id="guest-badge">Viewing only</div>
+
+        <!-- Video controls overlay -->
+        <div class="video-overlay" id="video-overlay">
+          <div class="video-controls">
+            <!-- Seek bar -->
+            <div class="seek-wrapper">
+              <input type="range" id="seek-bar" class="seek-bar" min="0" max="1000" value="0" step="1">
+              <span class="time-display" id="time-display">0:00 / 0:00</span>
+              <span class="buffer-pct" id="buffer-pct"></span>
+            </div>
+
+            <!-- Controls row (host only) -->
+            <div class="controls-row" id="host-controls">
+              <button class="ctrl-btn play-btn" id="play-pause-btn" title="Play/Pause">
+                <!-- Play icon (default) -->
+                <svg id="icon-play" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5.14v14l11-7-11-7z"/>
+                </svg>
+                <!-- Pause icon -->
+                <svg id="icon-pause" viewBox="0 0 24 24" fill="currentColor" class="hidden">
+                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+              </button>
+
+              <!-- Volume -->
+              <div class="volume-group">
+                <button class="ctrl-btn" id="mute-btn" title="Mute">
+                  <svg id="icon-vol" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                  </svg>
+                  <svg id="icon-mute" viewBox="0 0 24 24" fill="currentColor" class="hidden">
+                    <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                  </svg>
+                </button>
+                <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="100">
+              </div>
+
+              <div class="controls-spacer"></div>
+
+              <!-- Fullscreen -->
+              <button class="ctrl-btn" id="fullscreen-btn" title="Fullscreen">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Guest controls row (volume + fullscreen only) -->
+            <div class="controls-row hidden" id="guest-controls">
+              <div class="volume-group">
+                <button class="ctrl-btn" id="guest-mute-btn" title="Mute">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                  </svg>
+                </button>
+                <input type="range" id="guest-volume-slider" class="volume-slider" min="0" max="100" value="100">
+              </div>
+              <div class="controls-spacer"></div>
+              <button class="ctrl-btn" id="guest-fullscreen-btn" title="Fullscreen">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chat Panel -->
+    <aside class="chat-panel">
+      <div class="chat-header">Chat</div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-area">
+        <textarea
+          id="chat-input"
+          class="chat-input"
+          placeholder="Say something…"
+          maxlength="500"
+          rows="1"
+        ></textarea>
+        <button class="chat-send-btn" id="chat-send" title="Send">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z"/>
+          </svg>
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Participants slide-in panel -->
+<div class="participants-panel" id="participants-panel">
+  <div class="participants-header">
+    <span>Participants (<span id="participants-count-panel">1</span>)</span>
+    <button class="participants-close" id="close-participants">&times;</button>
+  </div>
+  <div class="participants-list" id="participants-list"></div>
+</div>
+
+<!-- Room Ended overlay -->
+<div class="room-ended-overlay hidden" id="room-ended-overlay">
+  <div class="room-ended-card">
+    <h2>Session Ended</h2>
+    <p id="room-ended-msg">The host has ended the session.</p>
+    <a href="/" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:6px;font-weight:600;color:#fff;background:var(--accent);text-decoration:none;">
+      Back to Home
+    </a>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/room.js"></script>
+</body>
+</html>

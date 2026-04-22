@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JoshTV+ — Watch together, wherever you are</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <main class="landing">
+    <div class="landing-logo">
+      <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="21" stroke="#8b5cf6" stroke-width="2"/>
+        <circle cx="22" cy="22" r="13" fill="rgba(139,92,246,0.15)"/>
+        <polygon points="18,15 32,22 18,29" fill="#a78bfa"/>
+        <circle cx="8" cy="22" r="3" fill="#a78bfa" opacity="0.5"/>
+        <circle cx="36" cy="22" r="3" fill="#a78bfa" opacity="0.5"/>
+        <circle cx="22" cy="8" r="3" fill="#a78bfa" opacity="0.5"/>
+        <circle cx="22" cy="36" r="3" fill="#a78bfa" opacity="0.5"/>
+      </svg>
+      <h1>JoshTV+</h1>
+    </div>
+    <p class="landing-tagline">Watch together, wherever you are.  But only if you are in the Morristown Movie Meetup. :)</p>
+
+    <div class="landing-card">
+      <!-- Host a room -->
+      <p class="section-label">Host a watch party</p>
+
+      <div class="drive-hint">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="flex-shrink:0;margin-top:2px;color:var(--accent-hover)">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/>
+        </svg>
+        <span>In Google Drive, right-click your MP4 → <strong>Share</strong> → set to <strong>"Anyone with the link"</strong> → copy the link and paste it below.</span>
+      </div>
+
+      <div class="create-form">
+        <input
+          type="url"
+          id="input-drive-url"
+          placeholder="https://drive.google.com/file/d/…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <input
+          type="text"
+          id="input-host-name"
+          placeholder="Your display name"
+          maxlength="30"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="btn-create" class="btn-primary" type="button">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+            <path d="M3.75 3A1.75 1.75 0 002 4.75v10.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0018 15.25V4.75A1.75 1.75 0 0016.25 3H3.75zM10 7.5a.75.75 0 01.75.75v1.75h1.75a.75.75 0 010 1.5h-1.75v1.75a.75.75 0 01-1.5 0v-1.75H7.5a.75.75 0 010-1.5h1.75V8.25A.75.75 0 0110 7.5z"/>
+          </svg>
+          Create a Room
+        </button>
+      </div>
+
+      <div id="status-create" class="status-msg"></div>
+
+      <div class="landing-divider">or</div>
+
+      <!-- Join a Room -->
+      <p class="section-label">Join a room</p>
+      <div class="join-row">
+        <input
+          type="text"
+          id="input-room-code"
+          placeholder="Enter room code (e.g. X7KQ2M)"
+          maxlength="10"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="btn-join" class="btn-secondary" type="button">Join</button>
+      </div>
+      <div id="status-join" class="status-msg"></div>
+    </div>
+  </main>
+
+  <script src="/js/landing.js"></script>
+</body>
+</html>
