@@ -71,10 +71,6 @@
   const roomEndedMsg = document.getElementById('room-ended-msg');
   const toastContainer = document.getElementById('toast-container');
 
-  const fetchOverlay = document.getElementById('fetch-overlay');
-  const fetchLabel = document.getElementById('fetch-label');
-  const fetchBarFill = document.getElementById('fetch-bar-fill');
-  const fetchPct = document.getElementById('fetch-pct');
   const bufferPctEl = document.getElementById('buffer-pct');
 
   // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -173,7 +169,6 @@
     });
 
     socket.on('room-state', onRoomState);
-    socket.on('video-status', onVideoStatus);
     socket.on('play', onRemotePlay);
     socket.on('pause', onRemotePause);
     socket.on('seek', onRemoteSeek);
@@ -202,66 +197,28 @@
 
   // ─── Socket Event Handlers ────────────────────────────────────────────────────
   // Store playback state from room-state so we can apply it once video is ready
-  let pendingPlaybackState = null;
+  let videoLoaded = false;
 
   function onRoomState(data) {
-    pendingPlaybackState = data.playbackState;
-
     // Hydrate chat history
     chatMessages.innerHTML = '';
     (data.chatMessages || []).forEach(renderChatMessage);
     scrollChat();
-
     onParticipantUpdate({ participants: data.participants });
 
-    // If the server already finished fetching, video-status:ready will follow
-    // immediately (or was already sent). If still downloading, the overlay stays up.
-    if (data.videoStatus === 'ready') {
-      // video-status event will arrive right after; nothing to do here
-    } else if (isHost) {
-      // Host sees the progress bar; disable play until ready
-      if (playPauseBtn) playPauseBtn.disabled = true;
-    }
-  }
-
-  function onVideoStatus(data) {
-    const { status, progress, message } = data;
-    if (status === 'downloading') {
-      fetchOverlay.classList.remove('hidden');
+    if (!videoLoaded) {
+      videoLoaded = true;
       if (isHost && playPauseBtn) playPauseBtn.disabled = true;
 
-      if (progress != null) {
-        // Known file size — show percentage
-        fetchBarFill.style.width = progress + '%';
-        fetchPct.textContent = progress + '%';
-      } else if (data.downloadedMB != null) {
-        // Drive omitted Content-Length — show MB and animate bar up to ~90%
-        const vizPct = Math.min(90, data.downloadedMB * 3);
-        fetchBarFill.style.width = vizPct + '%';
-        fetchPct.textContent = `${data.downloadedMB} MB downloaded…`;
-      }
-      return;
-    }
-
-    if (status === 'error') {
-      fetchOverlay.classList.add('hidden');
-      videoError.classList.remove('hidden');
-      videoErrorMsg.textContent = message || 'Failed to fetch video from Google Drive.';
-      return;
-    }
-
-    if (status === 'ready') {
-      fetchOverlay.classList.add('hidden');
-      videoError.classList.add('hidden');
-
-      // Load video from the server proxy — same origin, proper Range support
-      video.src = `/proxy/${roomId}/video`;
+      // Load video directly from Google Drive
+      video.src = data.videoUrl;
       video.load();
 
       video.addEventListener('loadedmetadata', () => {
-        const state = pendingPlaybackState || { playing: false, currentTime: 0 };
-        video.currentTime = state.currentTime || 0;
+        const state = data.playbackState;
+        video.currentTime = Math.max(0, state.currentTime || 0);
         updateSeekBar();
+        updateBufferBar();
         if (!isHost && state.playing) {
           video.play().catch(() => {});
         }
@@ -270,6 +227,12 @@
           startHeartbeat();
         }
       }, { once: true });
+    } else {
+      // Reconnected — re-sync position without reloading
+      const state = data.playbackState;
+      video.currentTime = Math.max(0, state.currentTime || 0);
+      if (state.playing && video.paused)   video.play().catch(() => {});
+      if (!state.playing && !video.paused) video.pause();
     }
   }
 

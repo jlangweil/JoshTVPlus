@@ -4,6 +4,7 @@
   "description": "Synchronized watch party app with Google Drive integration",
   "main": "server/index.js",
   "scripts": {
+    "build": "echo No build step",
     "start": "node server/index.js",
     "dev": "nodemon server/index.js"
   },
