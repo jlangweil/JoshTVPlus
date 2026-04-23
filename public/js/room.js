@@ -210,8 +210,8 @@
       videoLoaded = true;
       if (isHost && playPauseBtn) playPauseBtn.disabled = true;
 
-      // Load video directly from Google Drive
-      video.src = data.videoUrl;
+      // Load via server proxy (handles Drive's redirect/confirmation chain)
+      video.src = `/proxy/${roomId}/video`;
       video.load();
 
       video.addEventListener('loadedmetadata', () => {
